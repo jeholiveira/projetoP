@@ -10,3 +10,29 @@ def login(request):
     form = LoginForm()
     return render(request, 'login.html', {'form': form})
 
+def validar (request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        
+        if form.is_valid():
+            pessoa = authenticate(username=form.data ['login'], password=form.data['senha'])
+            
+            if pessoa is not None:
+                if pessoa.is_active:
+                    meu_login(request, pessoa)
+                    return HttpResponseRedirect('/dashboard/')
+                else:
+                    return render(request, 'login.html', {'form': form})
+            else:
+                return render(request, 'login.html', {'form': form} )
+        else:
+            return render(request, 'login.html', {'form': form})
+    else:
+        return HttpResponseRedirect('/login/')
+
+def logoff(request):
+    logout(request)
+    return HttpResponseRedirect('/')
+@login_requuired()
+def dashboard(request):
+    return render(request, 'dashboard.html')
